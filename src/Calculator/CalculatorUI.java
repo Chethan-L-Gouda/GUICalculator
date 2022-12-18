@@ -2,104 +2,207 @@ package Calculator;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Stack;
 
 public class CalculatorUI extends JFrame{
     JFrame rootFrame;
     JPanel rootPanel=new JPanel(new BorderLayout()),optPanel,opdPanel,resPanel;
+    String expression="";
+    String number =null;
+    String answer=null;
+    Stack<String> exp=new Stack<>();
+    void displayInfix(){
+        System.out.println();
+        for(String ent:exp){
+            System.out.print(ent+"\t");
+        }
+        System.out.println();
+    }
     public CalculatorUI(){
-        opdPanel=new JPanel(new GridLayout(2,1));
-        optPanel=new JPanel(new GridLayout(2,2));
+        opdPanel=new JPanel();
+        optPanel=new JPanel(new GridBagLayout());
         resPanel=new JPanel();
         Font lblF=new Font("Mono scope",Font.ITALIC,30);
         Font tfF=new Font("Mono scope",Font.BOLD,25);
         Color btnBGC=new Color(51, 61, 68);
         Color btnFGC=new Color(212, 204, 204);
+        Color lblBGC=new Color(75, 83, 100, 160);
 
 
         JLabel resLabel = new JLabel();
         resLabel.setFont(lblF);
+        resLabel.setOpaque(true);
+        resLabel.setBackground(lblBGC);
+        resLabel.setAlignmentX(JLabel.RIGHT_ALIGNMENT);
         resLabel.setPreferredSize(new Dimension(500,100));
         resPanel.add(resLabel);
 
         JTextField opd1=new JTextField();
-        JTextField opd2=new JTextField();
-        opd2.setFont(tfF);
         opd1.setFont(tfF);
-        opd1.setColumns(25);
-        opd2.setColumns(25);
-        opdPanel.add(opd1);opdPanel.add(opd2);
+        opd1.setColumns(20);
+        opdPanel.add(opd1);
 
         JButton addBtn=new JButton("+");
         JButton subBtn=new JButton("-");
         JButton mulBtn=new JButton("x");
         JButton divBtn=new JButton("/");
-        Dimension btnD=new Dimension(100,100);
+        JButton powBtn = new JButton("^");
+        JButton ansBtn=new JButton("ANS");
+        JButton eqlBtn = new JButton("=");
+        Dimension btnD=new Dimension(100,50);
         addBtn.setPreferredSize(btnD);subBtn.setPreferredSize(btnD);
         mulBtn.setPreferredSize(btnD);divBtn.setPreferredSize(btnD);
+        powBtn.setPreferredSize(btnD);ansBtn.setPreferredSize(btnD);
+        eqlBtn.setPreferredSize(btnD);
 
         addBtn.addActionListener(e -> {
-            try{
-                double a,b;
-                a=Double.parseDouble(opd1.getText());
-                b=Double.parseDouble(opd2.getText());
-                resLabel.setText(String.valueOf((a+b)));
-            }catch (NumberFormatException n){
-                resLabel.setText("Enter Numbers!");
-            }
+            if(number !=null)
+                exp.push(number);
+            exp.push("+");
+            this.number=null;
+            expression=expression.concat("+");
+            opd1.setText(expression);
         });
 
         subBtn.addActionListener(e -> {
-            try{
-                double a,b;
-                a=Double.parseDouble(opd1.getText());
-                b=Double.parseDouble(opd2.getText());
-                resLabel.setText(String.valueOf((a-b)));
-            }catch (NumberFormatException n){
-                resLabel.setText("Enter Numbers!");
-            }
+            if(number != null)
+                exp.push(number);
+            exp.push("-");
+            this.number=null;
+            expression=expression.concat("-");
+            opd1.setText(expression);
         });
 
         mulBtn.addActionListener(e -> {
-            try{
-                double a,b;
-                a=Double.parseDouble(opd1.getText());
-                b=Double.parseDouble(opd2.getText());
-                resLabel.setText(String.valueOf((a*b)));
-            }catch (NumberFormatException n){
-                resLabel.setText("Enter Numbers!");
-            }
+            if(number != null)
+                exp.push(number);
+            exp.push("*");
+            this.number=null;
+            expression=expression.concat("*");
+            opd1.setText(expression);
         });
 
         divBtn.addActionListener(e -> {
-            try{
-                double a,b;
-                a=Double.parseDouble(opd1.getText());
-                b=Double.parseDouble(opd2.getText());
-                resLabel.setText(String.valueOf((a/b)));
-            }catch (NumberFormatException n){
-                resLabel.setText("Enter Numbers!");
-            }
+            if(number != null)
+                exp.push(number);
+            exp.push("/");
+            this.number=null;
+            expression=expression.concat("/");
+            opd1.setText(expression);
+        });
+        eqlBtn.addActionListener(e->{
+                if(number != null)
+                    exp.push(number);
+                resPanel.repaint();
+                displayInfix();
+                Expression expr=new Expression(exp);
+                expr.displayPostfix();
+                answer=String.valueOf(expr.solve());
+                resLabel.setText(answer);
+                number=null;
+                exp.clear();
+                expression="";
         });
 
-        addBtn.setBackground(btnBGC);
-        subBtn.setBackground(btnBGC);
-        mulBtn.setBackground(btnBGC);
-        divBtn.setBackground(btnBGC);
-        addBtn.setForeground(btnFGC);
-        subBtn.setForeground(btnFGC);
-        mulBtn.setForeground(btnFGC);
-        divBtn.setForeground(btnFGC);
-        optPanel.add(addBtn);
-        optPanel.add(subBtn);
-        optPanel.add(mulBtn);
-        optPanel.add(divBtn);
+        ansBtn.addActionListener(e->{
+            if(answer != null){
+                exp.push(answer);
+                expression=expression.concat(answer);
+            }
+            System.out.println(answer);
+            opd1.setText(expression);
+        });
 
-        JPanel actPanel=new JPanel(new GridLayout(2,1));
-        actPanel.add(opdPanel);
-        actPanel.add(resPanel);
+        powBtn.addActionListener(e -> {
+            if(number != null)
+                exp.push(number);
+            exp.push("^");
+            this.number=null;
+            expression=expression.concat("^");
+            opd1.setText(expression);
+        });
 
-        rootPanel.add(optPanel,BorderLayout.EAST);
-        rootPanel.add(actPanel,BorderLayout.WEST);
+        addBtn.setBackground(btnBGC);subBtn.setBackground(btnBGC);
+        mulBtn.setBackground(btnBGC);divBtn.setBackground(btnBGC);
+        powBtn.setBackground(btnBGC);ansBtn.setBackground(btnBGC);
+        addBtn.setForeground(btnFGC);subBtn.setForeground(btnFGC);
+        mulBtn.setForeground(btnFGC);divBtn.setForeground(btnFGC);
+        powBtn.setForeground(btnFGC);ansBtn.setForeground(btnFGC);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill=GridBagConstraints.HORIZONTAL;
+        gbc.gridx=0;gbc.gridy=0;
+        optPanel.add(addBtn,gbc);
+        gbc.gridx=1;gbc.gridy=0;
+        optPanel.add(subBtn,gbc);
+        gbc.gridx=0;gbc.gridy=1;
+        optPanel.add(mulBtn,gbc);
+        gbc.gridx=1;gbc.gridy=1;
+        optPanel.add(divBtn,gbc);
+        gbc.gridx=0;gbc.gridy=2;
+        optPanel.add(powBtn,gbc);
+        gbc.gridx=1;gbc.gridy=2;
+        optPanel.add(ansBtn,gbc);
+        gbc.gridx=0;gbc.gridy=3;
+        gbc.gridwidth=2;
+        optPanel.add(eqlBtn,gbc);
+
+        JPanel numPanel = new JPanel(new GridLayout(4,3));
+        JButton [] num = new  JButton[10];
+
+        for (int i=1;i<10;i++){
+            num[i]=new JButton(String.valueOf(i));
+            num[i].setPreferredSize(btnD);
+            int finalI = i;
+            num[i].addActionListener(e->{
+                try {
+                    this.number = number.concat(num[finalI].getText());
+                }catch (NullPointerException n){
+                    number="";
+                    number=number.concat(num[finalI].getText());
+                }
+                expression = expression.concat(num[finalI].getText());
+                opd1.setText(expression);
+            });
+            numPanel.add(num[i]);
+        }
+        num[0]=new JButton("0");
+        num[0].addActionListener(e->{
+            try {
+                this.number = number.concat("0");
+            }catch (NullPointerException n){
+                number="0";
+            }
+            expression = expression.concat("0");
+            opd1.setText(expression);
+        });
+        numPanel.add(num[0]);
+        JButton dotBtn=new JButton(".");
+        dotBtn.addActionListener(e->{
+            this.number =number.concat(".");
+            expression = expression.concat(".");
+            opd1.setText(expression);
+        });
+        numPanel.add(dotBtn);
+        JButton clrBtn=new JButton("clr");
+        clrBtn.addActionListener(e->{
+            expression="";
+            number=null;
+            exp.clear();
+            answer=null;
+            resLabel.setText("");
+            opd1.setText(expression);
+        });
+        numPanel.add(clrBtn);
+
+        JPanel actPanel=new JPanel(new BorderLayout());
+        actPanel.add(opdPanel,BorderLayout.NORTH);
+        actPanel.add(resPanel,BorderLayout.SOUTH);
+
+        JPanel btnPanel=new JPanel(new FlowLayout());
+        btnPanel.add(numPanel);btnPanel.add(optPanel);
+
+        rootPanel.add(btnPanel,BorderLayout.SOUTH);
+        rootPanel.add(actPanel,BorderLayout.NORTH);
     }
 
     public void showWindow() {
