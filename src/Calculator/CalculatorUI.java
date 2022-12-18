@@ -11,13 +11,7 @@ public class CalculatorUI extends JFrame{
     String number =null;
     String answer=null;
     Stack<String> exp=new Stack<>();
-    void displayInfix(){
-        System.out.println();
-        for(String ent:exp){
-            System.out.print(ent+"\t");
-        }
-        System.out.println();
-    }
+
     public CalculatorUI(){
         opdPanel=new JPanel();
         optPanel=new JPanel(new GridBagLayout());
@@ -91,17 +85,17 @@ public class CalculatorUI extends JFrame{
             opd1.setText(expression);
         });
         eqlBtn.addActionListener(e->{
-                if(number != null)
+            try {
+                if (number != null)
                     exp.push(number);
                 resPanel.repaint();
-                displayInfix();
-                Expression expr=new Expression(exp);
-                expr.displayPostfix();
-                answer=String.valueOf(expr.solve());
+                Expression expr = new Expression(exp);
+                answer = String.valueOf(expr.solve());
                 resLabel.setText(answer);
-                number=null;
+                number = null;
                 exp.clear();
-                expression="";
+                expression = "";
+            }catch (Exception ignored){}
         });
 
         ansBtn.addActionListener(e->{
@@ -109,7 +103,6 @@ public class CalculatorUI extends JFrame{
                 exp.push(answer);
                 expression=expression.concat(answer);
             }
-            System.out.println(answer);
             opd1.setText(expression);
         });
 
