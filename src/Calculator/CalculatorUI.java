@@ -95,7 +95,10 @@ public class CalculatorUI extends JFrame{
                 number = null;
                 exp.clear();
                 expression = "";
-            }catch (Exception ignored){}
+            }catch (Exception er){
+                resPanel.repaint();
+                resLabel.setText("ERROR");
+            }
         });
 
         ansBtn.addActionListener(e->{
